@@ -69,7 +69,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-#### 2.2 Run the following command.
+#### 2.2 Run the following command
 
 ```bash
 kubectl apply -f rbac.yaml
@@ -131,7 +131,7 @@ yes
 
 ---
 
-### 3. Create Exprimant Template: Delete Pod Name
+### 3. Create Experiment Template: Delete Pod Name
 
 #### 3.1 Name and Role
 
