@@ -133,7 +133,7 @@ yes
 
 ### 3. Create Exprimant Template: Delete Pod Name
 
-### 3.1 Name and Role
+#### 3.1 Name and Role
 
 add "Name" of FisWorkshopEKSDeletePod
 
@@ -142,7 +142,7 @@ add "Description" of Delete Pod
 use FisWorkshopServiceRole as execution role
 
 
-### 3.2 Action
+#### 3.2 Action
 
 add "Name" of 
 
@@ -151,7 +151,7 @@ For "Name" enter EKSDeletePod and you can skip the Description. For "Action type
 <img src="./images/action_delete_pod.png" width=80%/>
 
 
-### 3.2 Target
+#### 3.3 Target
 
 On the "Edit target" popup select `aws:eks:pod` as Resoure type. 
 Cluster Identifier is `FisWorkshop-EksCluster`. 
@@ -162,7 +162,7 @@ Select "Save" and `Create Experimental`
 
 <img src="./images/target_delete_pod.png" width=80%/>
 
-### 3.2 Start enperiment and monitor
+#### 3.4 Start enperiment and monitor
 
 select the `FisWorkshopEKSDeletePod` experiment template you created above
 select Start experiment from the Action drop-down menu
