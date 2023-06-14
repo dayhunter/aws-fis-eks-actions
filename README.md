@@ -189,6 +189,8 @@ hello-kubernetes-cc6888859-5gwnm              0/1     Terminating         0     
 hello-kubernetes-cc6888859-mj2xq              1/1     Running             0          2s
 ```
 
+---
+
 ### 4. Create Exprimant Template: Delete Pod by Deployment Name
 
 You can follow Section 3) to create experiment template and start experiment.
