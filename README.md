@@ -8,7 +8,7 @@
 
 ### 1. Recommend to finish workshop on Amazon EKS Session
 
-<img src="./images/eks_workshop.png" width=40%/>
+<img src="./images/eks_workshop.png" width=80%/>
 
 ---
 
@@ -88,7 +88,7 @@ aws sts get-caller-identity
 
 Note that current user is assume `WSParticipantRole`. So that, we will copy `WSParticipantRole` ARN by copy from AWS Console then save to tmp file.
 
-<img src="./images/iam_role_participant.png" width=40%/>
+<img src="./images/iam_role_participant.png" width=80%/>
 
 
 #### 2.4 Map your IAM entity manually by editing the aws-auth ConfigMap
@@ -131,7 +131,7 @@ yes
 
 ---
 
-### 3. Create Exprimant Template
+### 3. Create Exprimant Template: Delete Pod Name
 
 ### 3.1 Name and Role
 
@@ -148,7 +148,7 @@ add "Name" of
 
 For "Name" enter EKSDeletePod and you can skip the Description. For "Action type" select `aws:eks:pod-delete`. Select "Save".
 
-<img src="./images/action_delete_pod.png" width=40%/>
+<img src="./images/action_delete_pod.png" width=80%/>
 
 
 ### 3.2 Target
@@ -160,7 +160,7 @@ Selector Type is `podName`
 Selector Value is `your-pod-name`. 
 Select "Save" and `Create Experimental`
 
-<img src="./images/target_delete_pod.png" width=40%/>
+<img src="./images/target_delete_pod.png" width=80%/>
 
 ### 3.2 Start enperiment and monitor
 
@@ -169,7 +169,7 @@ select Start experiment from the Action drop-down menu
 add a `Name` tag of `FisWorkshopEKSDeletePod_1`
 confirm that you want to start an experiment
 
-<img src="./images/start_experiment_delete_pod.png" width=40%/>
+<img src="./images/start_experiment_delete_pod.png" width=80%/>
 
 You will see that FIS will delete your pod as expected 
 
@@ -189,52 +189,48 @@ hello-kubernetes-cc6888859-5gwnm              0/1     Terminating         0     
 hello-kubernetes-cc6888859-mj2xq              1/1     Running             0          2s
 ```
 
+### 4. Create Exprimant Template: Delete Pod by Deployment Name
 
+You can follow Section 3) to create experiment template and start experiment.
 
+The only difference are in experiment template to set `Target` as follows.:
 
+Selector Type is `Deployment Name`
+Selector Value is `your-deployment-name`. 
 
+<img src="./images/target_delete_pod_by_deployment.png" width=80%/>
 
+```bash
+kubectl get po -w
+NAME                                          READY   STATUS    RESTARTS   AGE
+fispod-05a8f16a-3e33-3996-9be2-c03cd8eb9a58   1/1     Running   0          12s
+hello-kubernetes-cc6888859-mj2xq              1/1     Running   0          10m
+hello-kubernetes-cc6888859-pbmdb              1/1     Running   0          44m
+hello-kubernetes-cc6888859-pbmdb              1/1     Terminating   0          45m
+hello-kubernetes-cc6888859-mj2xq              1/1     Terminating   0          11m
+hello-kubernetes-cc6888859-hpjmn              0/1     Pending       0          0s
+hello-kubernetes-cc6888859-hpjmn              0/1     Pending       0          0s
+hello-kubernetes-cc6888859-jmdwz              0/1     Pending       0          0s
+hello-kubernetes-cc6888859-hpjmn              0/1     ContainerCreating   0          0s
+hello-kubernetes-cc6888859-jmdwz              0/1     Pending             0          0s
+hello-kubernetes-cc6888859-jmdwz              0/1     ContainerCreating   0          0s
+hello-kubernetes-cc6888859-pbmdb              0/1     Terminating         0          45m
+hello-kubernetes-cc6888859-pbmdb              0/1     Terminating         0          45m
+hello-kubernetes-cc6888859-pbmdb              0/1     Terminating         0          45m
+hello-kubernetes-cc6888859-mj2xq              0/1     Terminating         0          11m
+hello-kubernetes-cc6888859-mj2xq              0/1     Terminating         0          11m
+hello-kubernetes-cc6888859-mj2xq              0/1     Terminating         0          11m
+hello-kubernetes-cc6888859-jmdwz              1/1     Running             0          1s
+hello-kubernetes-cc6888859-hpjmn              1/1     Running             0          2s
+```
 
-
-
-
-
-<img src="./images/powerbi-get-data.png" width=40%/>
-
-Search for `Athena` and click `Connect`
-
-<img src="./images/powerbi-get-data-search.png" width=40%/>
-
-DSN: `MyTestDataSource` (Your Data Source Name)
-
-Data Connectivity mode: `DirectQuery`
-
-Click `OK`
-
-<img src="./images/powerbi-get-data-athena.png" width=40%/>
-
-Select `Use Data Source Configuration` then click `Connect`
-
-<img src="./images/powerbi-get-data-athena-connect.png" width=40%/>
-
-Navigator will show up then expand datasource, database, and select table then click `Load`
-
-<img src="./images/powerbi-get-data-athena-table.png" width=50%/>
-
-On `Visualizations` tab, select `Table`
-
-On `Data` tab, select column that you want to show
-
-You will notice that data is showing on dashboard.
-
-<img src="./images/powerbi-get-data-athena-dashboard.png" width=70%/>
 
 ---
 
 ## References
 
-- [Connecting to Amazon Athena with ODBC](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
+- [Chaos Engineering / Fault Injection Simulator (FIS) workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/5fc0039f-9f15-47f8-aff0-09dc7b1779ee/en-US)
 
-- [Using the Amazon Athena Power BI connector](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc-and-power-bi.html)
+- [Use the AWS FIS aws:eks:pod actions](https://docs.aws.amazon.com/fis/latest/userguide/eks-pod-actions.html)
 
 ---
