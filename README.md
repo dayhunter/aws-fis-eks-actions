@@ -162,7 +162,7 @@ Select "Save" and `Create Experimental`
 
 <img src="./images/target_delete_pod.png" width=80%/>
 
-#### 3.4 Start enperiment and monitor
+#### 3.4 Start experiment and monitor
 
 select the `FisWorkshopEKSDeletePod` experiment template you created above
 select Start experiment from the Action drop-down menu
@@ -191,7 +191,7 @@ hello-kubernetes-cc6888859-mj2xq              1/1     Running             0     
 
 ---
 
-### 4. Create Exprimant Template: Delete Pod by Deployment Name
+### 4. Create Experiment Template: Delete Pod by Deployment Name
 
 You can follow Section 3) to create experiment template and start experiment.
 
