@@ -16,7 +16,13 @@
 
 This steps a refer to this [Instruction](https://docs.aws.amazon.com/fis/latest/userguide/eks-pod-actions.html)
 
-#### 2.1 Config Service Account
+#### 2.1 Add FIS EKS Policy to IAM Role
+
+Add Policy name: `AWSFaultInjectionSimulatorEKSAccess` to IAM Role: `FisWorkshopServiceRole`
+
+<img src="./images/eks_iam_role.png" width=80%/>
+
+#### 2.2 Config Service Account
 
 Create a file named rbac.yaml and add the following.
 
@@ -69,13 +75,13 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-#### 2.2 Run the following command
+#### 2.3 Run the following command
 
 ```bash
 kubectl apply -f rbac.yaml
 ```
 
-#### 2.3 Get current user role
+#### 2.4 Get current user role
 
 ```bash
 aws sts get-caller-identity
@@ -91,7 +97,7 @@ Note that current user is assume `WSParticipantRole`. So that, we will copy `WSP
 <img src="./images/iam_role_participant.png" width=80%/>
 
 
-#### 2.4 Map your IAM entity manually by editing the aws-auth ConfigMap
+#### 2.5 Map your IAM entity manually by editing the aws-auth ConfigMap
 
 ```bash
 kubectl edit configmap aws-auth --namespace kube-system
@@ -109,7 +115,7 @@ Under `mapRoles:`. Add you Role arn as follow
 ...
 ```
 
-#### 2.5 Mapping your experiment role to the Kubernetes user
+#### 2.6 Mapping your experiment role to the Kubernetes user
 
 Now, you have autorize to perform mapping your experiment role to the Kubernetes user
 
@@ -120,7 +126,7 @@ eksctl create iamidentitymapping \
     --cluster FisWorkshop-EksCluster
 ```
 
-#### 2.6 Testing user
+#### 2.7 Testing user
 
 Test `fis-experiment` user can get pod. Result should be `yes`.
 
