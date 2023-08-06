@@ -2,29 +2,62 @@
 
 ## Prerequisite
 1. [Workshop Environment](https://catalog.us-east-1.prod.workshops.aws/workshops/5fc0039f-9f15-47f8-aff0-09dc7b1779ee/en-US)
-    
+
 ---
+
 ## Instruction
 
 ### 1. Recommend to finish workshop on Amazon EKS Session
 
-<img src="./images/eks_workshop.png" width=80%/>
+<img src="./images/eks_workshop.png" width=50%/>
+
+and [Configuring Permissions](https://catalog.us-east-1.prod.workshops.aws/event/dashboard/en-US/workshop/030-basic-content/030-basic-experiment/10-permissions)
 
 ---
 
-### 2. Config Service Account
+### 2. Install eksctl
+
+Download eksctl
+
+```bash
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+```
+
+Move eksctl to /usr/local/bin folder
+
+```bash
+sudo mv /tmp/eksctl /usr/local/bin
+```
+
+Checking the version
+
+```bash
+eksctl version
+
+0.151.0
+```
+
+---
+
+### 3. Config Service Account
 
 This steps a refer to this [Instruction](https://docs.aws.amazon.com/fis/latest/userguide/eks-pod-actions.html)
 
-#### 2.1 Add FIS EKS Policy to IAM Role
+#### 3.1 Add FIS EKS Policy to IAM Role
 
 Add Policy name: `AWSFaultInjectionSimulatorEKSAccess` to IAM Role: `FisWorkshopServiceRole`
 
 <img src="./images/eks_iam_role.png" width=80%/>
 
-#### 2.2 Config Service Account
+#### 3.2 Config Service Account
 
-Create a file named rbac.yaml and add the following.
+Create a file named `rbac.yaml` 
+
+```bash
+touch rbac.yaml
+```
+
+Add the following configuration. You can done by using `nano rbac.yaml`
 
 ```yaml
 kind: ServiceAccount
@@ -75,20 +108,21 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-#### 2.3 Run the following command
+#### 3.3 Run the following command
 
 ```bash
 kubectl apply -f rbac.yaml
 ```
 
-#### 2.4 Get current user role
+#### 3.4 Get current user role
 
 ```bash
 aws sts get-caller-identity
+
 {
     "UserId": "AROAZWTN3KMLBIDB7NKPX:Participant",
-    "Account": "667024053014",
-    "Arn": "arn:aws:sts::667024053014:assumed-role/WSParticipantRole/Participant"
+    "Account": "${ACCOUNT_ID}",
+    "Arn": "arn:aws:sts::${ACCOUNT_ID}:assumed-role/WSParticipantRole/Participant"
 }
 ```
 
@@ -97,36 +131,39 @@ Note that current user is assume `WSParticipantRole`. So that, we will copy `WSP
 <img src="./images/iam_role_participant.png" width=80%/>
 
 
-#### 2.5 Map your IAM entity manually by editing the aws-auth ConfigMap
+#### 3.5 Map your IAM entity manually by editing the aws-auth ConfigMap
 
 ```bash
 kubectl edit configmap aws-auth --namespace kube-system
 ```
 
-Under `mapRoles:`. Add you Role arn as follow
+Under `data` and `mapRoles:`. Add you Role arn as follows.
 
 ```yaml
-...
-  mapRoles: |
-    - groups:
-      - system:masters
-      rolearn: arn:aws:iam::667024053014:role/WSParticipantRole
-      username: arn:aws:iam::667024053014:role/WSParticipantRole
-...
+{"rolearn":"arn:aws:iam::${ACCOUNT_ID}:role/WSParticipantRole","username":"arn:aws:iam::${ACCOUNT_ID}:role/WSParticipantRole","groups":["system:masters"]}
 ```
 
-#### 2.6 Mapping your experiment role to the Kubernetes user
+Complete `mapRoles`
+
+```yaml
+apiVersion: v1
+data:
+  mapAccounts: '[]'
+  mapRoles: '[{"rolearn":"arn:aws:iam::${ACCOUNT_ID}:role/WSParticipantRole","username":"arn:aws:iam::${ACCOUNT_ID}:role/WSParticipantRole","groups":["system:masters"]},{"rolearn":"arn:aws:iam::${ACCOUNT_ID}:role/FisStackEks-ClusterMastersRole9AA35625-8651X4FTK10Y","username":"arn:aws:iam::${ACCOUNT_ID}:role/FisStackEks-ClusterMastersRole9AA35625-8651X4FTK10Y","groups":["system:masters"]},{"rolearn":"arn:aws:iam::${ACCOUNT_ID}:role/FisStackEks-ClusterNodegroupManagedNodeGroupNodeGr-FS0LROV6OHAI","username":"system:node:{{EC2PrivateDNSName}}","groups":["system:bootstrappers","system:nodes"]}]'
+```
+
+#### 3.6 Mapping your experiment role to the Kubernetes user
 
 Now, you have autorize to perform mapping your experiment role to the Kubernetes user
 
 ```bash
 eksctl create iamidentitymapping \
-    --arn arn:aws:iam::667024053014:role/FisWorkshopServiceRole \
+    --arn arn:aws:iam::${ACCOUNT_ID}:role/FisWorkshopServiceRole \
     --username fis-experiment \
     --cluster FisWorkshop-EksCluster
 ```
 
-#### 2.7 Testing user
+#### 3.7 Testing user
 
 Test `fis-experiment` user can get pod. Result should be `yes`.
 
@@ -137,38 +174,44 @@ yes
 
 ---
 
-### 3. Create Experiment Template: Delete Pod Name
+### 4. Create Experiment Template: Delete Pod Name
 
-#### 3.1 Name and Role
+#### 4.1 Name and Role
 
-add "Name" of FisWorkshopEKSDeletePod
+add "Name" of `FisWorkshopEKSDeletePod`
 
-add "Description" of Delete Pod
+add "Description" of `Delete Pod`
 
-use FisWorkshopServiceRole as execution role
+use `FisWorkshopServiceRole` as execution role
 
 
-#### 3.2 Action
+#### 4.2 Action
 
-add "Name" of 
-
-For "Name" enter EKSDeletePod and you can skip the Description. For "Action type" select `aws:eks:pod-delete`. Select "Save".
+`Name` enter `EKSDeletePod` and you can skip the Description.
+`Action type` select `aws:eks:pod-delete`. 
+`kubernetesServiceAccount` enter `myserviceaccount`
+Select "Save".
 
 <img src="./images/action_delete_pod.png" width=80%/>
 
-
-#### 3.3 Target
+#### 4.3 Target
 
 On the "Edit target" popup select `aws:eks:pod` as Resoure type. 
-Cluster Identifier is `FisWorkshop-EksCluster`. 
-Namespace is `Default` 
-Selector Type is `podName`
-Selector Value is `your-pod-name`. 
+`Cluster Identifier` is `FisWorkshop-EksCluster`. 
+`Namespace` is `Default` 
+`Selector Type` is `podName`
+`Selector Value` is `your-pod-name`. 
 Select "Save" and `Create Experimental`
 
 <img src="./images/target_delete_pod.png" width=80%/>
 
-#### 3.4 Start experiment and monitor
+#### 4.4 Create experiment template
+
+Select "Create" and enter `create` to Create experiment template
+
+<img src="./images/create_experiment_template.png" width=60%/>
+
+#### 4.5 Start experiment and monitor
 
 select the `FisWorkshopEKSDeletePod` experiment template you created above
 select Start experiment from the Action drop-down menu
@@ -197,9 +240,9 @@ hello-kubernetes-cc6888859-mj2xq              1/1     Running             0     
 
 ---
 
-### 4. Create Experiment Template: Delete Pod by Deployment Name
+### 5. Create Experiment Template: Delete Pod by Deployment Name
 
-You can follow Section 3) to create experiment template and start experiment.
+You can follow Section 4) to create experiment template and start experiment.
 
 The only difference are in experiment template to set `Target` as follows.:
 
